@@ -31,18 +31,18 @@ public class OperationsChecker {
         }
 
         if (leftExprType == ExpressionType.COLOR || rightExprType == ExpressionType.COLOR || leftExprType == ExpressionType.BOOL || rightExprType == ExpressionType.BOOL) {
-            operation.setError("Using color literals or boolean literals in operations is not allowed. At line: " + operation.getLine(), ErrorType.ERROR);
+            operation.setError("Using color literals or boolean literals in Mutliplication, Addition or Subtraction operations is not allowed. At line: " + operation.getLine(), ErrorType.ERROR);
             return ExpressionType.UNDEFINED;
         }
 
         if (operation instanceof MultiplicationOperation) {
             if (leftExprType != ExpressionType.SCALAR && rightExprType != ExpressionType.SCALAR) {
-                operation.setError("Multiplication is only allowed with at least one scalar literal. At line: " + operation.getLine(), ErrorType.ERROR);
+                operation.setError("Multiplication is only possible if either left or right side op the expression conatins a scalar literal at line: " + operation.getLine(), ErrorType.ERROR);
                 return ExpressionType.UNDEFINED;
             }
             return rightExprType != ExpressionType.SCALAR ? rightExprType : leftExprType;
         } else if ((operation instanceof SubtractOperation || operation instanceof AddOperation) && leftExprType != rightExprType) {
-            operation.setError("Subtraction or Addition operations are only allowed with the same scalar literal. At line: " + operation.getLine(), ErrorType.ERROR);
+            operation.setError("Subtraction or Addition operations are only allowed with the same types. At line: " + operation.getLine(), ErrorType.ERROR);
             return ExpressionType.UNDEFINED;
         }
 

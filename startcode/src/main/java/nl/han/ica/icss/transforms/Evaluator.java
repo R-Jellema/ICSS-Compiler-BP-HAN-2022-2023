@@ -79,27 +79,13 @@ public class Evaluator implements Transform {
             var ifClause = (IfClause) astNode;
             ifClause.conditionalExpression = this.transformExpression(ifClause.conditionalExpression);
 
-            // Expression of if is true
-            if (((BoolLiteral) ifClause.conditionalExpression).value) {
-                // set else body to null of if clause if there is no else
-                if (ifClause.elseClause != null) {
-                    ifClause.elseClause.body = new ArrayList<>();
-                }
-            } else {
-                // Expression of if is false, remove if clause body
-                if (ifClause.elseClause == null) {
-                    ifClause.body = new ArrayList<>();
-                    return;
-                } else {
-                    // no else clause body? Set to null and remove body.
-                    ifClause.body = ifClause.elseClause.body;
-                    ifClause.elseClause.body = new ArrayList<>();
-                }
-            }
+            this.transformIfElseClause(ifClause);
 
             this.transformIfClause((IfClause) astNode, parentBody);
         }
     }
+
+
 
     private void transformIfClause(IfClause ifClause, ArrayList<ASTNode> parentBody) {
         for (ASTNode child : ifClause.getChildren()) {
@@ -117,6 +103,24 @@ public class Evaluator implements Transform {
         this.variableValues.addVariable(variableAssignment.name.name, (Literal) variableAssignment.expression);
     }
 
+    private void transformIfElseClause(IfClause ifClause) {
+        // Expression of if is true
+        if (((BoolLiteral) ifClause.conditionalExpression).value && ifClause.body != null) {
+            // set else body to null of if clause if there is no else
+            if (ifClause.elseClause != null) {
+                ifClause.elseClause.body = new ArrayList<>();
+            }
+        } else {
+            // Expression of if is false, remove if clause body
+            if (ifClause.elseClause == null) {
+                ifClause.body = new ArrayList<>();
+            } else {
+                // no else clause body? Set to null and remove body.
+                ifClause.body = ifClause.elseClause.body;
+                ifClause.elseClause.body = new ArrayList<>();
+            }
+        }
+    }
 
     private Literal transformExpression(Expression expression) {
         if (expression instanceof Operation) {

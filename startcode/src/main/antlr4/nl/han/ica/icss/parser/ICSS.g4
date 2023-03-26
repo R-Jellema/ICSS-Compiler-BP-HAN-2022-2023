@@ -25,17 +25,23 @@ CLASS_IDENT: '.' [a-zA-Z0-9\-_]+; // was [a-z0-9\-]. Nu kan een class .ClassSele
 ID_IDENT: '#' [a-zA-Z0-9\-_]+; // was [a-z0-9\-]. Nu kan een identity #IdSelector | #Id_Selector | #id-selector | #id_selector | #IDSelector heten.
 
 //General identifiers
-LOWER_IDENT: [a-z] [a-z0-9\-]*;
+LOWER_IDENT: [a-z] [a-z0-9\-_]*;
 CAPITAL_IDENT: [A-Z] [A-Za-z0-9_]*;
+
+MULTIPLE_CLASS_IDENT: CLASS_IDENT*;
+ID_CLASS_IDENT: ID_IDENT CLASS_IDENT*;
+ELEMENT_CLASS_IDENT: LOWER_IDENT CLASS_IDENT | LOWER_IDENT CLASS_IDENT*;
+
 
 //All whitespace is skipped
 WS: [ \t\r\n]+ -> skip;
 
 //Comments and line comments are skipped
-COMMENT : '/*' (COMMENT|.)*? '*/' -> skip;
+COMMENT_BLOCK : '/*' (COMMENT_BLOCK|.)*? '*/' -> skip;
 LINE_COMMENT  : '//' .*? '\n' -> skip;
 
-//
+
+
 OPEN_BRACE: '{';
 CLOSE_BRACE: '}';
 SEMICOLON: ';';
@@ -48,29 +54,30 @@ ASSIGNMENT_OPERATOR: ':=';
 
 
 //--- PARSER: ---
-stylesheet: varAssignment* styleRule* EOF;
-styleRule: selector OPEN_BRACE styleBody CLOSE_BRACE;
-declaration: propertyName COLON expression SEMICOLON;
+stylesheet: varAssign* styleRule* EOF;
+styleRule: sel OPEN_BRACE styleBody CLOSE_BRACE;
+decl: propertyName COLON expr SEMICOLON;
 propertyName: LOWER_IDENT;
 
-varAssignment: varReference ASSIGNMENT_OPERATOR expression+ SEMICOLON;
+varAssign: varRef ASSIGNMENT_OPERATOR expr+ SEMICOLON;
 
-ifStmt: IF BOX_BRACKET_OPEN (varReference | boolLit) BOX_BRACKET_CLOSE OPEN_BRACE styleBody CLOSE_BRACE elseStmt?;
+ifStmt: IF BOX_BRACKET_OPEN (varRef | boolLit) BOX_BRACKET_CLOSE OPEN_BRACE styleBody CLOSE_BRACE elseStmt?;
 elseStmt: ELSE OPEN_BRACE styleBody CLOSE_BRACE;
 
-expression: literal | expression (MUL) expression | expression (PLUS | MIN) expression;
+expr: literal | expr (MUL) expr | expr (PLUS | MIN) expr;
 
 boolLit: TRUE | FALSE;
 colorLit: COLOR;
 percentLit: PERCENTAGE;
 pixelLit: PIXELSIZE;
 scalarLit: SCALAR;
-varReference: CAPITAL_IDENT;
-literal: boolLit | colorLit | percentLit | pixelLit | scalarLit | varReference;
+varRef: CAPITAL_IDENT;
+literal: boolLit | colorLit | percentLit | pixelLit | scalarLit | varRef;
 
-classSel: CLASS_IDENT;
-tagSel: LOWER_IDENT;
-idSel: ID_IDENT | COLOR;
-selector: (tagSel | classSel | idSel) (COMMA selector)*;
+classSel: CLASS_IDENT | MULTIPLE_CLASS_IDENT;
+tagSel: LOWER_IDENT | ELEMENT_CLASS_IDENT;
+idSel: (ID_IDENT | COLOR | ID_CLASS_IDENT);
 
-styleBody: (declaration | ifStmt | varAssignment)*;
+sel: (tagSel | classSel | idSel) (COMMA sel)*;
+
+styleBody: (decl | ifStmt | varAssign)*;

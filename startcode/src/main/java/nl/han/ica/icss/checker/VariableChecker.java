@@ -21,7 +21,7 @@ public class VariableChecker {
         var exprType = this.expressionsChecker.checkExpr(variableAssign.expression);
 
         if (exprType == null || exprType == ExpressionType.UNDEFINED) {
-            astNode.setError("Variable assignment is invalid because of faulty expression. At line: " + variableAssign.getLine(), ErrorType.ERROR);
+            astNode.setError("Variable assignment is invalid and thus not possible because of an invalid expression at line: " + variableAssign.getLine(), ErrorType.ERROR);
             return;
         }
 
@@ -36,7 +36,7 @@ public class VariableChecker {
     public ExpressionType checkVarRef(VariableReference varRef) {
         var exprType = variableTypes.getVariable((varRef).name);
         if (exprType == null) {
-            varRef.setError("Variable not yet declared or in scope. At line: " + varRef.getLine(), ErrorType.ERROR);
+            varRef.setError("Variable usage invalid. Is the variable not declared or possible declared in an unavailable scope? At line: " + varRef.getLine(), ErrorType.WARN);
             return null;
         }
         return exprType;

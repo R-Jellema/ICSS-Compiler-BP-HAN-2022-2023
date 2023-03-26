@@ -7,9 +7,8 @@ import nl.han.ica.icss.ast.literals.*;
 import nl.han.ica.icss.ast.operations.AddOperation;
 import nl.han.ica.icss.ast.operations.MultiplicationOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
-import nl.han.ica.icss.ast.selectors.ClassSelector;
-import nl.han.ica.icss.ast.selectors.IdSelector;
-import nl.han.ica.icss.ast.selectors.TagSelector;
+import nl.han.ica.icss.ast.selectors.*;
+
 import static nl.han.ica.icss.parser.ICSSParser.*;
 
 /**
@@ -95,35 +94,34 @@ public class ASTListener extends ICSSBaseListener {
 		currentContainer.peek().addChild(idSel);
 	}
 
-	@Override
-	public void enterVarReference(VarReferenceContext ctx) {
+	public void enterVarRef(VarRefContext ctx) {
 		var varRef = new VariableReference(ctx.getText());
 		varRef.setLine(ctx.start.getLine());
 		currentContainer.peek().addChild(varRef);
 	}
 
 	@Override
-	public void enterVarAssignment(VarAssignmentContext ctx) {
+	public void enterVarAssign(VarAssignContext ctx) {
 		var varAssign = new VariableAssignment();
 		varAssign.setLine(ctx.start.getLine());
 		currentContainer.push(varAssign);
 	}
 
 	@Override
-	public void exitVarAssignment(VarAssignmentContext ctx) {
+	public void exitVarAssign(VarAssignContext ctx) {
 		var varAssign = currentContainer.pop();
 		currentContainer.peek().addChild(varAssign);
 	}
 
 	@Override
-	public void enterDeclaration(DeclarationContext ctx) {
+	public void enterDecl(DeclContext ctx) {
 		var decl = new Declaration();
 		decl.setLine(ctx.start.getLine());
 		currentContainer.push(decl);
 	}
 
 	@Override
-	public void exitDeclaration(DeclarationContext ctx) {
+	public void exitDecl(DeclContext ctx) {
 		var decl = currentContainer.pop();
 		currentContainer.peek().addChild(decl);
 	}
@@ -171,7 +169,7 @@ public class ASTListener extends ICSSBaseListener {
 	}
 
 	@Override
-	public void enterExpression(ExpressionContext ctx) {
+	public void enterExpr(ExprContext ctx) {
 		Operation operation;
 
 		if (ctx.getChildCount() == 3) {
@@ -192,7 +190,7 @@ public class ASTListener extends ICSSBaseListener {
 	}
 
 	@Override
-	public void exitExpression(ExpressionContext ctx) {
+	public void exitExpr(ExprContext ctx) {
 		if (exprHasOperation(ctx)) {
 			var operation = currentContainer.pop();
 			currentContainer.peek().addChild(operation);
@@ -225,8 +223,7 @@ public class ASTListener extends ICSSBaseListener {
 		currentContainer.peek().addChild(elseStmt);
 	}
 
-	private boolean exprHasOperation(ExpressionContext ctx) {
+	private boolean exprHasOperation(ExprContext ctx) {
 		return ctx.PLUS() != null || ctx.MIN() != null || ctx.MUL() != null;
 	}
-
 }

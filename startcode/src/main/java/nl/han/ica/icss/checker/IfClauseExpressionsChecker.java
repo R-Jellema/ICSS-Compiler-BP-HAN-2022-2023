@@ -17,7 +17,7 @@ public class IfClauseExpressionsChecker {
         ExpressionType exprType = this.exprChecker.checkExprType(conditionalExpr);
 
         if (exprType != ExpressionType.BOOL) {
-            ifClause.setError("ConditionalExpression should be a boolean literal. At line: " + ifClause.getLine(), ErrorType.ERROR);
+            ifClause.setError("Conditionals can only evaluate bool literals. Are you trying to evaluate something else? at line: " + ifClause.getLine(), ErrorType.ERROR);
             return ExpressionType.UNDEFINED;
         }
 

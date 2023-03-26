@@ -85,22 +85,22 @@ public class Checker {
         switch (decl.property.name) {
             case "color":
                 if (exprType != ExpressionType.COLOR) {
-                    astNode.setError("A color test property-value can only be a color literal. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
+                    astNode.setError("A color property-value can only hold color literal type. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             case "background-color":
                 if (exprType != ExpressionType.COLOR) {
-                    astNode.setError("A background-color property-value can only be a color literal. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
+                    astNode.setError("A background-color property-value can only hold color literal type. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             case "width":
                 if (exprType != ExpressionType.PIXEL && exprType != ExpressionType.PERCENTAGE) {
-                    astNode.setError("A width property-value can only be a pixel or percentage literal. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
+                    astNode.setError("A width property-value can only hold pixel literal or percentage literal types. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             case "height":
                 if (exprType != ExpressionType.PIXEL && exprType != ExpressionType.PERCENTAGE) {
-                    astNode.setError("A height property-value can only be a pixel or percentage literal. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
+                    astNode.setError("A height property-value can only hold a pixel literal or percentage literal type. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             default:
