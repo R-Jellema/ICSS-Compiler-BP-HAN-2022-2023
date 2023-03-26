@@ -6,7 +6,6 @@ import nl.han.ica.icss.ast.literals.ColorLiteral;
 import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class Generator {
@@ -24,7 +23,7 @@ public class Generator {
 
 	private void nodeGeneration(ASTNode astNode) {
 		for (var node : astNode.getChildren()) {
-			if (node instanceof Stylerule) {
+			if (node instanceof StyleRule) {
 				this.selGeneration(node);
 
 				this.declGeneration(node);
@@ -40,7 +39,7 @@ public class Generator {
 	}
 
 	private void selGeneration(ASTNode astNode) {
-		var rule = (Stylerule) astNode;
+		var rule = (StyleRule) astNode;
 
 		var selCollection = rule.selectors.stream()
 				.map(ASTNode::toString)

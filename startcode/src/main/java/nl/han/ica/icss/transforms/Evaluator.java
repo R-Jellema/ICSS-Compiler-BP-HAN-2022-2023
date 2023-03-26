@@ -11,8 +11,6 @@ import nl.han.ica.icss.ast.operations.MultiplicationOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 public class Evaluator implements Transform {
     private final ScopeHolder<String, Literal> variableValues;
@@ -32,15 +30,15 @@ public class Evaluator implements Transform {
 
         this.variableValues.openScope();
 
-        for (ASTNode child : astNode.getChildren()) {
+        for (var child : astNode.getChildren()) {
             if (child instanceof VariableAssignment) {
-                this.transformVariableAssignment((VariableAssignment) child);
+                this.transformVarAssign((VariableAssignment) child);
                 toRemove.add(child);
                 continue;
             }
 
-            if (child instanceof Stylerule) {
-                this.transformStylerule((Stylerule) child);
+            if (child instanceof StyleRule) {
+                this.transformStyleRule((StyleRule) child);
             }
         }
 
@@ -49,12 +47,12 @@ public class Evaluator implements Transform {
         toRemove.forEach(astNode::removeChild);
     }
 
-    private void transformStylerule(Stylerule stylerule) {
+    private void transformStyleRule(StyleRule stylerule) {
         var toAdd = new ArrayList<ASTNode>();
 
         this.variableValues.openScope();
 
-        for (ASTNode child : stylerule.body) {
+        for (var child : stylerule.body) {
             this.transformRuleBody(child, toAdd);
         }
 
@@ -65,19 +63,19 @@ public class Evaluator implements Transform {
 
     private void transformRuleBody(ASTNode astNode, ArrayList<ASTNode> parentBody) {
         if (astNode instanceof VariableAssignment) {
-            this.transformVariableAssignment((VariableAssignment) astNode);
+            this.transformVarAssign((VariableAssignment) astNode);
             return;
         }
 
         if (astNode instanceof Declaration) {
-            this.transformDeclaration((Declaration) astNode);
+            this.transformDecl((Declaration) astNode);
             parentBody.add(astNode);
             return;
         }
 
         if (astNode instanceof IfClause) {
             var ifClause = (IfClause) astNode;
-            ifClause.conditionalExpression = this.transformExpression(ifClause.conditionalExpression);
+            ifClause.conditionalExpression = this.transformExpr(ifClause.conditionalExpression);
 
             this.transformIfElseClause(ifClause);
 
@@ -93,14 +91,14 @@ public class Evaluator implements Transform {
         }
     }
 
-    private void transformDeclaration(Declaration declaration) {
-        declaration.expression = this.transformExpression(declaration.expression);
+    private void transformDecl(Declaration decl) {
+        decl.expression = this.transformExpr(decl.expression);
     }
 
-    private void transformVariableAssignment(VariableAssignment variableAssignment) {
-        var expression = variableAssignment.expression;
-        variableAssignment.expression = this.transformExpression(expression);
-        this.variableValues.addVariable(variableAssignment.name.name, (Literal) variableAssignment.expression);
+    private void transformVarAssign(VariableAssignment varAssign) {
+        var expression = varAssign.expression;
+        varAssign.expression = this.transformExpr(expression);
+        this.variableValues.addVariable(varAssign.name.name, (Literal) varAssign.expression);
     }
 
     private void transformIfElseClause(IfClause ifClause) {
@@ -122,16 +120,16 @@ public class Evaluator implements Transform {
         }
     }
 
-    private Literal transformExpression(Expression expression) {
-        if (expression instanceof Operation) {
-            return this.transformOperation((Operation) expression);
+    private Literal transformExpr(Expression expr) {
+        if (expr instanceof Operation) {
+            return this.transformOperation((Operation) expr);
         }
 
-        if (expression instanceof VariableReference) {
-            return this.variableValues.getVariable(((VariableReference) expression).name);
+        if (expr instanceof VariableReference) {
+            return this.variableValues.getVariable(((VariableReference) expr).name);
         }
 
-        return (Literal) expression;
+        return (Literal) expr;
     }
 
     private Literal transformOperation(Operation operation) {
@@ -154,52 +152,42 @@ public class Evaluator implements Transform {
             right = (Literal) operation.rhs;
         }
 
-        var leftValue = this.getLiteralValue(left);
-        var rightValue = this.getLiteralValue(right);
+        var leftValue = this.getLitValue(left);
+        var rightValue = this.getLitValue(right);
 
         if (operation instanceof AddOperation) {
-            return this.newLiteral(left, leftValue + rightValue);
+            return this.newLit(left, leftValue + rightValue);
         } else if (operation instanceof SubtractOperation) {
-            return this.newLiteral(left, leftValue - rightValue);
+            return this.newLit(left, leftValue - rightValue);
         } else if (operation instanceof MultiplicationOperation) {
             if (right instanceof ScalarLiteral) {
-                return this.newLiteral(left, leftValue * rightValue);
+                return this.newLit(left, leftValue * rightValue);
             } else {
-                return this.newLiteral(right, leftValue * rightValue);
+                return this.newLit(right, leftValue * rightValue);
             }
         } else {
-            return this.newLiteral(left, leftValue / rightValue);
+            return this.newLit(left, leftValue / rightValue);
         }
     }
 
-    private int getLiteralValue(Literal literal) {
-        if (literal instanceof PixelLiteral) {
-            return ((PixelLiteral) literal).value;
-        } else if (literal instanceof ScalarLiteral) {
-            return ((ScalarLiteral) literal).value;
+    private int getLitValue(Literal lit) {
+        if (lit instanceof PixelLiteral) {
+            return ((PixelLiteral) lit).value;
+        } else if (lit instanceof ScalarLiteral) {
+            return ((ScalarLiteral) lit).value;
         } else {
-            return ((PercentageLiteral) literal).value;
+            return ((PercentageLiteral) lit).value;
         }
     }
 
-    private Literal newLiteral(Literal literal, int value) {
-        if (literal instanceof PixelLiteral) {
-            return new PixelLiteral(value);
-        } else if (literal instanceof ScalarLiteral) {
-            return new ScalarLiteral(value);
+    private Literal newLit(Literal lit, int val) {
+        if (lit instanceof PixelLiteral) {
+            return new PixelLiteral(val);
+        } else if (lit instanceof ScalarLiteral) {
+            return new ScalarLiteral(val);
         } else {
-            return new PercentageLiteral(value);
+            return new PercentageLiteral(val);
         }
-    }
-
-    public boolean hasDuplicateDeclaration(List<ASTNode> astNodes) {
-        var appeared = new HashSet<String>();
-        for (var astNode : astNodes) {
-            if (!appeared.add(((Declaration) astNode).property.name)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     

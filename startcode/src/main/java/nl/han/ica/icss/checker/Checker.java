@@ -32,7 +32,7 @@ public class Checker {
         sheet.getChildren().forEach(child -> {
             if (child instanceof VariableAssignment) {
                 varChecker.varAssignChecker(child);
-            } else if (child instanceof Stylerule) {
+            } else if (child instanceof StyleRule) {
                 scopes.openScope();
                     styleRuleChecker(child);
                 scopes.closeScope();
@@ -43,7 +43,7 @@ public class Checker {
     }
 
     private void styleRuleChecker(ASTNode node) {
-        var stylerule = (Stylerule) node;
+        var stylerule = (StyleRule) node;
         this.ruleBodyChecker(stylerule.body);
     }
 

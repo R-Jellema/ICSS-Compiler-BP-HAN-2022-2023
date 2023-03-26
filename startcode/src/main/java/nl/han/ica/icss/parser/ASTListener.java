@@ -17,10 +17,10 @@ import static nl.han.ica.icss.parser.ICSSParser.*;
 public class ASTListener extends ICSSBaseListener {
 
 	//Accumulator attributes:
-	private AST ast;
+	private final AST ast;
 
 	//Use this to keep track of the parent nodes when recursively traversing the ast
-	private IHANStack<ASTNode> currentContainer;
+	private final IHANStack<ASTNode> currentContainer;
 
 	public ASTListener() {
 		ast = new AST();
@@ -44,7 +44,7 @@ public class ASTListener extends ICSSBaseListener {
 
 	@Override
 	public void enterStyleRule(StyleRuleContext ctx) {
-		var rule = new Stylerule();
+		var rule = new StyleRule();
 		rule.setLine(ctx.start.getLine());
 		currentContainer.push(rule);
 	}

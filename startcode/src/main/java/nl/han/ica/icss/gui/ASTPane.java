@@ -11,8 +11,8 @@ import nl.han.ica.icss.ast.ASTNode;
 
 public class ASTPane extends BorderPane {
 
-    private TreeView<ASTNode> content;
-    private Label title;
+    private final TreeView<ASTNode> content;
+    private final Label title;
 
     public ASTPane () {
 		super();
@@ -55,7 +55,7 @@ public class ASTPane extends BorderPane {
         TreeItem<ASTNode> tvNode = new TreeItem<ASTNode>(astNode);
         tvNode.setExpanded(true);
 
-        for(ASTNode child : astNode.getChildren()) {
+        for(var child : astNode.getChildren()) {
             tvNode.getChildren().add(astNodeToTreeItem(child));
         }
         return tvNode;

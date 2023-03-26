@@ -2,7 +2,7 @@ package nl.han.ica.datastructures;
 
 public class Node<T> {
 
-    private T val;
+    private final T val;
     private Node<T> next;
 
     public Node(T val) {

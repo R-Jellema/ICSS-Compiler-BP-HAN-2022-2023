@@ -3,7 +3,7 @@ package nl.han.ica.datastructures;
 public class Stack<T> implements IHANStack<T> {
 
     private final int INDEX_COUNT_ZERO = 0;
-    private IHANLinkedList<T> linkedList;
+    private final IHANLinkedList<T> linkedList;
 
     public Stack() {
         linkedList = new LinkedList<>();
