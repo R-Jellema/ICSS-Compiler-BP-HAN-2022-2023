@@ -10,8 +10,8 @@ public class Stack<T> implements IHANStack<T> {
     }
 
     @Override
-    public void push(T value) {
-        linkedList.addFirst(value);
+    public void push(T val) {
+        linkedList.addFirst(val);
     }
 
     @Override

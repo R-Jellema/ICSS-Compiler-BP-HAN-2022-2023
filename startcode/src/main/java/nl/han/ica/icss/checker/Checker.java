@@ -8,103 +8,103 @@ import java.util.ArrayList;
 
 
 public class Checker {
-    private final ScopeHolder<String, ExpressionType> variableTypes;
-    private final ExpressionsChecker expressionsChecker;
-    private final IfClauseExpressionChecker ifClauseExpressionChecker;
-    private final VariableChecker variableChecker;
+    private final ScopeHolder<String, ExpressionType> scopes;
+    private final ExpressionsChecker exprChecker;
+    private final IfClauseExpressionsChecker ifClauseExprChecker;
+    private final VariableChecker varChecker;
 
     public Checker() {
-        this.variableTypes = new ScopeHolder<>();
-        this.variableChecker = new VariableChecker(variableTypes);
-        this.expressionsChecker = new ExpressionsChecker(variableChecker);
-        this.ifClauseExpressionChecker = new IfClauseExpressionChecker(expressionsChecker);
+        this.scopes = new ScopeHolder<>();
+        this.varChecker = new VariableChecker(scopes);
+        this.exprChecker = new ExpressionsChecker(varChecker);
+        this.ifClauseExprChecker = new IfClauseExpressionsChecker(exprChecker);
     }
 
     public void check(AST ast) {
-        this.checkStylesheet(ast.root);
+        this.stylesheetChecker(ast.root);
     }
 
-    private void checkStylesheet(ASTNode node) {
-        var stylesheet = (Stylesheet) node;
+    private void stylesheetChecker(ASTNode node) {
+        var sheet = (Stylesheet) node;
 
-        variableTypes.openScope();
+        scopes.openScope();
 
-        stylesheet.getChildren().forEach(child -> {
+        sheet.getChildren().forEach(child -> {
             if (child instanceof VariableAssignment) {
-                variableChecker.variableAssignmentChecker(child);
+                varChecker.varAssignChecker(child);
             } else if (child instanceof Stylerule) {
-                variableTypes.openScope();
-                checkStylerule(child);
-                variableTypes.closeScope();
+                scopes.openScope();
+                    styleRuleChecker(child);
+                scopes.closeScope();
             }
         });
 
-        variableTypes.closeScope();
+        scopes.closeScope();
     }
 
-    private void checkStylerule(ASTNode node) {
+    private void styleRuleChecker(ASTNode node) {
         var stylerule = (Stylerule) node;
-        this.checkRuleBody(stylerule.body);
+        this.ruleBodyChecker(stylerule.body);
     }
 
-    private void checkRuleBody(ArrayList<ASTNode> nodes) {
+    private void ruleBodyChecker(ArrayList<ASTNode> nodes) {
         nodes.forEach(node -> {
             if (node instanceof Declaration) {
-                this.checkDeclaration(node);
+                this.declChecker(node);
             } else if (node instanceof IfClause) {
-                this.checkIfClause(node);
+                this.ifClauseChecker(node);
             } else if (node instanceof VariableAssignment) {
-                this.variableChecker.variableAssignmentChecker(node);
+                this.varChecker.varAssignChecker(node);
             }
         });
     }
 
-    private void checkIfClause(ASTNode astNode) {
+    private void ifClauseChecker(ASTNode astNode) {
         var ifClause = (IfClause) astNode;
-        this.variableTypes.openScope();
-        this.ifClauseExpressionChecker.check(ifClause);
-        this.checkRuleBody(ifClause.body);
-        this.variableTypes.closeScope();
+        this.scopes.openScope();
+            this.ifClauseExprChecker.checkIfClauseExpr(ifClause);
+            this.ruleBodyChecker(ifClause.body);
+        this.scopes.closeScope();
 
         if (ifClause.elseClause == null)  return;
 
-        this.variableTypes.openScope();
-        this.checkElseClause(ifClause.elseClause);
-        this.variableTypes.closeScope();
+        this.scopes.openScope();
+        this.elseClauseChecker(ifClause.elseClause);
+        this.scopes.closeScope();
     }
 
-    private void checkElseClause(ASTNode astNode) {
+    private void elseClauseChecker(ASTNode astNode) {
         var elseClause = (ElseClause) astNode;
-        this.checkRuleBody(elseClause.body);
+        this.ruleBodyChecker(elseClause.body);
     }
 
-    private void checkDeclaration(ASTNode astNode) {
-        var declaration = (Declaration) astNode;
-        var expressionType = this.expressionsChecker.expressionCheck(declaration.expression);
+    private void declChecker(ASTNode astNode) {
+        var decl = (Declaration) astNode;
+        var exprType = this.exprChecker.checkExpr(decl.expression);
 
-        switch (declaration.property.name) {
+        switch (decl.property.name) {
             case "color":
-                if (expressionType != ExpressionType.COLOR) {
-                    astNode.setError("A color property-value can only be a color literal.", ErrorType.WARN);
+                if (exprType != ExpressionType.COLOR) {
+                    astNode.setError("A color test property-value can only be a color literal. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             case "background-color":
-                if (expressionType != ExpressionType.COLOR) {
-                    astNode.setError("A background-color property-value can only be a color literal.", ErrorType.WARN);
+                if (exprType != ExpressionType.COLOR) {
+                    astNode.setError("A background-color property-value can only be a color literal. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             case "width":
-                if (expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE) {
-                    astNode.setError("A width property-value can only be a pixel or percentage literal.", ErrorType.WARN);
+                if (exprType != ExpressionType.PIXEL && exprType != ExpressionType.PERCENTAGE) {
+                    astNode.setError("A width property-value can only be a pixel or percentage literal. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             case "height":
-                if (expressionType != ExpressionType.PIXEL && expressionType != ExpressionType.PERCENTAGE) {
-                    astNode.setError("A height property-value can only be a pixel or percentage literal.", ErrorType.WARN);
+                if (exprType != ExpressionType.PIXEL && exprType != ExpressionType.PERCENTAGE) {
+                    astNode.setError("A height property-value can only be a pixel or percentage literal. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             default:
-                astNode.setError("The property \"" + declaration.property.name + "\" cannot be resolved.", ErrorType.ERROR);
+                astNode.setError("The property \"" + decl.property.name + "\" cannot be resolved. At line: " + decl.getLine(), ErrorType.ERROR);
                 break;
         }
     }

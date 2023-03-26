@@ -22,6 +22,6 @@ public class LinkedListIterator <T> implements Iterator<T> {
         }
         var tempo = current;
         current = current.getNext();
-        return tempo.getValue();
+        return tempo.getVal();
     }
 }

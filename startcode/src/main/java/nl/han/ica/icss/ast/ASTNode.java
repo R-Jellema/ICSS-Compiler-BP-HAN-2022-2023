@@ -9,6 +9,7 @@ import java.util.List;
 public class ASTNode {
 
     private SemanticError error = null;
+    private int Line = 0;
 
     /*
      This method is used in the GUI to create an appropriate label
@@ -71,7 +72,7 @@ public class ASTNode {
     public boolean equals(Object o) {
         if(! (o instanceof ASTNode))
             return false;
-        //Compare all children
+        // Get all children and run comparison between children
         List<ASTNode> thisChildren = this.getChildren();
         List<ASTNode> otherChildren = ((ASTNode) o).getChildren();
         if(otherChildren.size() != thisChildren.size())
@@ -83,4 +84,13 @@ public class ASTNode {
         }
         return true;
     }
+
+    public int getLine() {
+        return Line;
+    }
+
+    public void setLine(int line) {
+        Line = line;
+    }
+
 }

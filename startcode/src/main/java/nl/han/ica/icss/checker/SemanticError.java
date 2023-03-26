@@ -1,15 +1,15 @@
 package nl.han.ica.icss.checker;
 
 public class SemanticError {
-	private final String description;
-	private final ErrorType errorType;
+	private final String desc;
+	private ErrorType errType;
 
-	public SemanticError(String description, ErrorType errorType) {
-		this.description = description;
-		this.errorType = errorType;
+	public SemanticError(String desc, ErrorType errType) {
+		this.desc = desc;
+		this.errType = errType;
 	}
 
 	public String toString() {
-		return errorType.toString() + ": " + description;
+		return errType.toString() + ": " + desc;
 	}
 }

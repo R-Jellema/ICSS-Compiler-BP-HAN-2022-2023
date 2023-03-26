@@ -49,7 +49,7 @@ public class Pipeline implements ANTLRErrorListener {
 
     public void parseString(String input) {
 
-        //Lex (with Antlr's generated lexer)
+        //Lex input with Antlr's generated lexer.
         CharStream inputStream = CharStreams.fromString(input);
         ICSSLexer lexer = new ICSSLexer(inputStream);
         lexer.removeErrorListeners();
@@ -58,7 +58,7 @@ public class Pipeline implements ANTLRErrorListener {
         try {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-            //Parse (with Antlr's generated parser)
+            //Parse tokens with Antlr's generated parser
             ICSSParser parser = new ICSSParser(tokens);
             parser.removeErrorListeners();
             parser.addErrorListener(this);
@@ -101,12 +101,12 @@ public class Pipeline implements ANTLRErrorListener {
             return errors.isEmpty();
     }
 
-    public void clearErrors(){
+    public void clearErrors() {
         errors.clear();
     }
 
     public void transform() {
-        if(ast == null)
+        if (ast == null)
             return;
 
         (new Evaluator()).apply(ast);
@@ -114,12 +114,13 @@ public class Pipeline implements ANTLRErrorListener {
 
         transformed = errors.isEmpty();
     }
+
     public String generate() {
         Generator generator = new Generator();
         return generator.generate(ast);
     }
 
-    //Catch ANTLR errors
+    // Catch and report ANYTLR errors
     @Override
     public void reportAmbiguity(Parser arg0, DFA arg1, int arg2, int arg3,
                                 boolean arg4, BitSet arg5, ATNConfigSet arg6) {

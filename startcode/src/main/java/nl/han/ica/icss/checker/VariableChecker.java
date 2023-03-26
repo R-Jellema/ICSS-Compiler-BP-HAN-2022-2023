@@ -15,34 +15,34 @@ public class VariableChecker {
         this.expressionsChecker = new ExpressionsChecker(this);
     }
 
-    public void variableAssignmentChecker(ASTNode astNode) {
-        var variableAssignment = (VariableAssignment) astNode;
-        var variableReference = variableAssignment.name;
-        var expressionType = this.expressionsChecker.expressionCheck(variableAssignment.expression);
+    public void varAssignChecker(ASTNode astNode) {
+        var variableAssign = (VariableAssignment) astNode;
+        var varRef = variableAssign.name;
+        var exprType = this.expressionsChecker.checkExpr(variableAssign.expression);
 
-        if (expressionType == null || expressionType == ExpressionType.UNDEFINED) {
-            astNode.setError("Variable assignment is invalid because of faulty expression.", ErrorType.ERROR);
+        if (exprType == null || exprType == ExpressionType.UNDEFINED) {
+            astNode.setError("Variable assignment is invalid because of faulty expression. At line: " + variableAssign.getLine(), ErrorType.ERROR);
             return;
         }
 
-        ExpressionType previousExpressionType = this.variableTypes.getVariable(variableReference.name);
-        if (knownVariableIsNowDifferentType(expressionType, previousExpressionType)) {
-            astNode.setError("Variable of type \"" + previousExpressionType + "\" can't hold a value of type \"" + expressionType + "\"", ErrorType.ERROR);
+        ExpressionType prevExprType = this.variableTypes.getVariable(varRef.name);
+        if (isVarTypeSameOnReAssignment(exprType, prevExprType)) {
+            astNode.setError("Variable of type \"" + prevExprType + "\" can't hold a value of type \"" + exprType + "\". At line: " + varRef.getLine(), ErrorType.ERROR);
         }
 
-        this.variableTypes.addVariable(variableReference.name, expressionType);
+        this.variableTypes.addVariable(varRef.name, exprType);
     }
 
-    public ExpressionType variableReferenceChecker(VariableReference variableReference) {
-        var expressionType = variableTypes.getVariable((variableReference).name);
-        if (expressionType == null) {
-            variableReference.setError("Variable not yet declared or in scope.", ErrorType.ERROR);
+    public ExpressionType checkVarRef(VariableReference varRef) {
+        var exprType = variableTypes.getVariable((varRef).name);
+        if (exprType == null) {
+            varRef.setError("Variable not yet declared or in scope. At line: " + varRef.getLine(), ErrorType.ERROR);
             return null;
         }
-        return expressionType;
+        return exprType;
     }
 
-    private boolean knownVariableIsNowDifferentType(ExpressionType expressionType, ExpressionType previousExpressionType) {
-        return (previousExpressionType != null) && expressionType != previousExpressionType;
+    private boolean isVarTypeSameOnReAssignment(ExpressionType exprType, ExpressionType prevExprType) {
+        return (prevExprType != null) && exprType != prevExprType;
     }
 }

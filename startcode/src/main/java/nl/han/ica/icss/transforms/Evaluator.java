@@ -24,23 +24,23 @@ public class Evaluator implements Transform {
     @Override
     public void apply(AST ast) {
         var stylesheet = ast.root;
-        this.stylesheetTransformation(stylesheet);
+        this.transformStylesheet(stylesheet);
     }
 
-    private void stylesheetTransformation(ASTNode astNode) {
+    private void transformStylesheet(ASTNode astNode) {
         var toRemove = new ArrayList<ASTNode>();
 
         this.variableValues.openScope();
 
         for (ASTNode child : astNode.getChildren()) {
             if (child instanceof VariableAssignment) {
-                this.variableAssignmentTransformation((VariableAssignment) child);
+                this.transformVariableAssignment((VariableAssignment) child);
                 toRemove.add(child);
                 continue;
             }
 
             if (child instanceof Stylerule) {
-                this.styleRuleTransformation((Stylerule) child);
+                this.transformStylerule((Stylerule) child);
             }
         }
 
@@ -49,13 +49,13 @@ public class Evaluator implements Transform {
         toRemove.forEach(astNode::removeChild);
     }
 
-    private void styleRuleTransformation(Stylerule stylerule) {
+    private void transformStylerule(Stylerule stylerule) {
         var toAdd = new ArrayList<ASTNode>();
 
         this.variableValues.openScope();
 
         for (ASTNode child : stylerule.body) {
-            this.ruleBodyTransformation(child, toAdd);
+            this.transformRuleBody(child, toAdd);
         }
 
         this.variableValues.closeScope();
@@ -63,64 +63,64 @@ public class Evaluator implements Transform {
         stylerule.body = toAdd;
     }
 
-    private void ruleBodyTransformation(ASTNode astNode, ArrayList<ASTNode> parentBody) {
+    private void transformRuleBody(ASTNode astNode, ArrayList<ASTNode> parentBody) {
         if (astNode instanceof VariableAssignment) {
-            this.variableAssignmentTransformation((VariableAssignment) astNode);
+            this.transformVariableAssignment((VariableAssignment) astNode);
             return;
         }
 
         if (astNode instanceof Declaration) {
-            this.declarationTransformation((Declaration) astNode);
+            this.transformDeclaration((Declaration) astNode);
             parentBody.add(astNode);
             return;
         }
 
         if (astNode instanceof IfClause) {
             var ifClause = (IfClause) astNode;
-            ifClause.conditionalExpression = this.expressionTransformation(ifClause.conditionalExpression);
+            ifClause.conditionalExpression = this.transformExpression(ifClause.conditionalExpression);
 
-            // If "if"-expression is true.
+            // Expression of if is true
             if (((BoolLiteral) ifClause.conditionalExpression).value) {
-                // Remove "else"-clause if there is none in body.
+                // set else body to null of if clause if there is no else
                 if (ifClause.elseClause != null) {
                     ifClause.elseClause.body = new ArrayList<>();
                 }
             } else {
-                // If "if"-expression is false and there is no "else"-clause in body, remove else-clause.
+                // Expression of if is false, remove if clause body
                 if (ifClause.elseClause == null) {
                     ifClause.body = new ArrayList<>();
                     return;
                 } else {
-                    // If "else"-clause available in body, move it to the "if" clause.
+                    // no else clause body? Set to null and remove body.
                     ifClause.body = ifClause.elseClause.body;
                     ifClause.elseClause.body = new ArrayList<>();
                 }
             }
 
-            this.ifClauseTransformation((IfClause) astNode, parentBody);
+            this.transformIfClause((IfClause) astNode, parentBody);
         }
     }
 
-    private void ifClauseTransformation(IfClause ifClause, ArrayList<ASTNode> parentBody) {
+    private void transformIfClause(IfClause ifClause, ArrayList<ASTNode> parentBody) {
         for (ASTNode child : ifClause.getChildren()) {
-            this.ruleBodyTransformation(child, parentBody);
+            this.transformRuleBody(child, parentBody);
         }
     }
 
-    private void declarationTransformation(Declaration declaration) {
-        declaration.expression = this.expressionTransformation(declaration.expression);
+    private void transformDeclaration(Declaration declaration) {
+        declaration.expression = this.transformExpression(declaration.expression);
     }
 
-    private void variableAssignmentTransformation(VariableAssignment variableAssignment) {
+    private void transformVariableAssignment(VariableAssignment variableAssignment) {
         var expression = variableAssignment.expression;
-        variableAssignment.expression = this.expressionTransformation(expression);
+        variableAssignment.expression = this.transformExpression(expression);
         this.variableValues.addVariable(variableAssignment.name.name, (Literal) variableAssignment.expression);
     }
 
 
-    private Literal expressionTransformation(Expression expression) {
+    private Literal transformExpression(Expression expression) {
         if (expression instanceof Operation) {
-            return this.operationTransformation((Operation) expression);
+            return this.transformOperation((Operation) expression);
         }
 
         if (expression instanceof VariableReference) {
@@ -130,12 +130,12 @@ public class Evaluator implements Transform {
         return (Literal) expression;
     }
 
-    private Literal operationTransformation(Operation operation) {
+    private Literal transformOperation(Operation operation) {
         Literal left;
         Literal right;
 
         if (operation.lhs instanceof Operation) {
-            left = this.operationTransformation((Operation) operation.lhs);
+            left = this.transformOperation((Operation) operation.lhs);
         } else if (operation.lhs instanceof VariableReference) {
             left = this.variableValues.getVariable(((VariableReference) operation.lhs).name);
         } else {
@@ -143,7 +143,7 @@ public class Evaluator implements Transform {
         }
 
         if (operation.rhs instanceof Operation) {
-            right = this.operationTransformation((Operation) operation.rhs);
+            right = this.transformOperation((Operation) operation.rhs);
         } else if (operation.rhs instanceof VariableReference) {
             right = this.variableValues.getVariable(((VariableReference) operation.rhs).name);
         } else {
@@ -187,4 +187,16 @@ public class Evaluator implements Transform {
             return new PercentageLiteral(value);
         }
     }
+
+    public boolean hasDuplicateDeclaration(List<ASTNode> astNodes) {
+        var appeared = new HashSet<String>();
+        for (var astNode : astNodes) {
+            if (!appeared.add(((Declaration) astNode).property.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
 }

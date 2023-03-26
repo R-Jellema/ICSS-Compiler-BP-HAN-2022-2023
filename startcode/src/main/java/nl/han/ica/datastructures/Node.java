@@ -2,11 +2,11 @@ package nl.han.ica.datastructures;
 
 public class Node<T> {
 
-    private T value;
+    private T val;
     private Node<T> next;
 
-    public Node(T value) {
-        this.value = value;
+    public Node(T val) {
+        this.val = val;
     }
 
     public void setNext(Node<T> next){
@@ -17,8 +17,8 @@ public class Node<T> {
         return this.next;
     }
 
-    public T getValue(){
-        return this.value;
+    public T getVal(){
+        return this.val;
     }
 
 }

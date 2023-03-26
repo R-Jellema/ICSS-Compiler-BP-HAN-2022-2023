@@ -18,62 +18,62 @@ public class Generator {
 	}
 
 	public String generate(AST ast) {
-		this.generateNode(ast.root);
+		this.nodeGeneration(ast.root);
 		return stringBuilder.toString();
 	}
 
-	private void generateNode(ASTNode astNode) {
-		for (ASTNode node : astNode.getChildren()) {
+	private void nodeGeneration(ASTNode astNode) {
+		for (var node : astNode.getChildren()) {
 			if (node instanceof Stylerule) {
-				this.generateSelector(node);
+				this.selGeneration(node);
 
-				this.generateDeclaration(node);
+				this.declGeneration(node);
 
-				this.stringBuilder.append("}\n\n");
+				this.stringBuilder.append("}\n\n ");
 			}
 		}
 
-		// Remove one \n character.
+		// Remove one trailing \n character at the end of file.
 		if (this.stringBuilder.length() > 1) {
 			this.stringBuilder.delete(this.stringBuilder.length() - 1, this.stringBuilder.length());
 		}
 	}
 
-	private void generateSelector(ASTNode astNode) {
-		Stylerule stylerule = (Stylerule) astNode;
+	private void selGeneration(ASTNode astNode) {
+		var rule = (Stylerule) astNode;
 
-		List<String> selectors = stylerule.selectors.stream()
+		var selCollection = rule.selectors.stream()
 				.map(ASTNode::toString)
 				.collect(Collectors.toList());
 
-		String str = String.join(", ", selectors);
+		var str = String.join(", ", selCollection);
 		this.stringBuilder.append(str);
 
 		this.stringBuilder.append(" {\n");
 	}
 
-	private void generateDeclaration(ASTNode astNode) {
-		for (ASTNode node : astNode.getChildren()) {
+	private void declGeneration(ASTNode astNode) {
+		for (var node : astNode.getChildren()) {
 			if (node instanceof Declaration) {
-				Declaration declaration = (Declaration) node;
+				var decl = (Declaration) node;
 				this.stringBuilder.append("  ")
-						.append(declaration.property.name)
+						.append(decl.property.name)
 						.append(": ")
-						.append(this.expressionToString(declaration.expression))
+						.append(this.exprToString(decl.expression))
 						.append(";\n");
 			}
 		}
 	}
 
-	private String expressionToString(Expression expression) {
-		if (expression instanceof PercentageLiteral) {
-			return ((PercentageLiteral) expression).value + "%";
+	private String exprToString(Expression expr) {
+		if (expr instanceof PercentageLiteral) {
+			return ((PercentageLiteral) expr).value + "%";
 		}
-		if (expression instanceof PixelLiteral) {
-			return ((PixelLiteral) expression).value + "px";
+		if (expr instanceof PixelLiteral) {
+			return ((PixelLiteral) expr).value + "px";
 		}
-		if (expression instanceof ColorLiteral) {
-			return ((ColorLiteral) expression).value + "";
+		if (expr instanceof ColorLiteral) {
+			return ((ColorLiteral) expr).value + "";
 		}
 
 		return "";

@@ -19,16 +19,16 @@ public class ScopeHolder<K,V> {
         this.listOfScopes.removeFirst();
     }
 
-    public void addVariable(K key, V value) {
-        this.listOfScopes.getFirst().put(key, value);
+    public void addVariable(K key, V val) {
+        this.listOfScopes.getFirst().put(key, val);
     }
 
     public V getVariable(K key) {
         AtomicReference<V> result = new AtomicReference<>();
         listOfScopes.forEach(scope -> {
-            V value = scope.get(key);
-            if (value != null) {
-                result.set(value);
+            V val = scope.get(key);
+            if (val != null) {
+                result.set(val);
             }
         });
         return result.get();

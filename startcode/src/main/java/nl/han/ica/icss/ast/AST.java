@@ -8,6 +8,7 @@ import java.util.Objects;
 public class AST {
 	//The root of the tree
 	public Stylesheet root;
+	public int Line = 0;
 
 	public AST() {
 		root = new Stylesheet();
@@ -18,11 +19,11 @@ public class AST {
 	public void setRoot(Stylesheet stylesheet) {
 		root = stylesheet;
 	}
-    public ArrayList<SemanticError> getErrors() {
-	    ArrayList<SemanticError> errors = new ArrayList<>();
-        collectErrors(errors,root);
-        return errors;
-    }
+	public ArrayList<SemanticError> getErrors() {
+		ArrayList<SemanticError> errors = new ArrayList<>();
+		collectErrors(errors,root);
+		return errors;
+	}
     private void collectErrors(ArrayList<SemanticError> errors, ASTNode node) {
 	    if(node.hasError()) {
 	        errors.add(node.getError());
@@ -31,6 +32,7 @@ public class AST {
 	        collectErrors(errors,child);
         }
     }
+
 	@Override
 	public String toString() {
 		return root.toString();

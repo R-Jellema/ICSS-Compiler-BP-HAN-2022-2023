@@ -9,11 +9,11 @@ public class LinkedList<T> implements IHANLinkedList<T> {
     private Node<T> head = null;
 
     @Override
-    public void addFirst(T value) {
+    public void addFirst(T val) {
         if (head == null) {
-            head = new Node<>(value);
+            head = new Node<>(val);
         } else {
-            Node<T> nodeToAdd = new Node<>(value);
+            var nodeToAdd = new Node<>(val);
             nodeToAdd.setNext(head);
             head = nodeToAdd;
         }
@@ -25,8 +25,8 @@ public class LinkedList<T> implements IHANLinkedList<T> {
     }
 
     @Override
-    public void insert(int index, T value) {
-        Node<T> nodeToAdd = new Node<>(value);
+    public void insert(int index, T val) {
+        Node<T> nodeToAdd = new Node<>(val);
         Node<T> current = head;
 
         head = head == null ? nodeToAdd : head;
@@ -68,7 +68,7 @@ public class LinkedList<T> implements IHANLinkedList<T> {
     public void removeFirst() { head = head.getNext(); }
 
     @Override
-    public T getFirst() { return head.getValue(); }
+    public T getFirst() { return head.getVal(); }
 
     @Override
     public int getSize() {

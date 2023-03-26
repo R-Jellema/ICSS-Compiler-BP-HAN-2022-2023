@@ -33,8 +33,9 @@ public class ASTListener extends ICSSBaseListener {
 
 	@Override
 	public void enterStylesheet(StylesheetContext ctx) {
-		var stylesheet = new Stylesheet();
-		currentContainer.push(stylesheet);
+		var sheet = new Stylesheet();
+		sheet.setLine(ctx.start.getLine());
+		currentContainer.push(sheet);
 	}
 
 	@Override
@@ -44,116 +45,129 @@ public class ASTListener extends ICSSBaseListener {
 
 	@Override
 	public void enterStyleRule(StyleRuleContext ctx) {
-		var styleRule = new Stylerule();
-		currentContainer.push(styleRule);
+		var rule = new Stylerule();
+		rule.setLine(ctx.start.getLine());
+		currentContainer.push(rule);
 	}
 
 	@Override
 	public void exitStyleRule(StyleRuleContext ctx) {
-		var styleRule = currentContainer.pop();
-		currentContainer.peek().addChild(styleRule);
+		var rule = currentContainer.pop();
+		currentContainer.peek().addChild(rule);
 	}
 
 	@Override
-	public void enterTagSelector(TagSelectorContext ctx) {
-		var tagSelector = new TagSelector(ctx.getText());
-		currentContainer.push(tagSelector);
+	public void enterTagSel(TagSelContext ctx) {
+		var tagSel = new TagSelector(ctx.getText());
+		tagSel.setLine(ctx.start.getLine());
+		currentContainer.push(tagSel);
 	}
 
 	@Override
-	public void exitTagSelector(TagSelectorContext ctx) {
-		var tagSelector = currentContainer.pop();
-		currentContainer.peek().addChild(tagSelector);
+	public void exitTagSel(TagSelContext ctx) {
+		var tagSel = currentContainer.pop();
+		currentContainer.peek().addChild(tagSel);
 	}
 
 	@Override
-	public void enterClassSelector(ClassSelectorContext ctx) {
-		var classSelector = new ClassSelector(ctx.getText());
-		currentContainer.push(classSelector);
+	public void enterClassSel(ClassSelContext ctx) {
+		var classSel = new ClassSelector(ctx.getText());
+		classSel.setLine(ctx.start.getLine());
+		currentContainer.push(classSel);
 	}
 
 	@Override
-	public void exitClassSelector(ClassSelectorContext ctx) {
-		var classSelector = currentContainer.pop();
-		currentContainer.peek().addChild(classSelector);
+	public void exitClassSel(ClassSelContext ctx) {
+		var classSel = currentContainer.pop();
+		currentContainer.peek().addChild(classSel);
 	}
 
 	@Override
-	public void enterIdSelector(IdSelectorContext ctx) {
-		var idSelector = new IdSelector(ctx.getText());
-		currentContainer.push(idSelector);
+	public void enterIdSel(IdSelContext ctx) {
+		var idSel = new IdSelector(ctx.getText());
+		idSel.setLine(ctx.start.getLine());
+		currentContainer.push(idSel);
 	}
 
 	@Override
-	public void exitIdSelector(IdSelectorContext ctx) {
-		var idSelector = currentContainer.pop();
-		currentContainer.peek().addChild(idSelector);
+	public void exitIdSel(IdSelContext ctx) {
+		var idSel = currentContainer.pop();
+		currentContainer.peek().addChild(idSel);
 	}
 
 	@Override
-	public void enterVariableReference(VariableReferenceContext ctx) {
-		var variableReference = new VariableReference(ctx.getText());
-		currentContainer.peek().addChild(variableReference);
+	public void enterVarReference(VarReferenceContext ctx) {
+		var varRef = new VariableReference(ctx.getText());
+		varRef.setLine(ctx.start.getLine());
+		currentContainer.peek().addChild(varRef);
 	}
 
 	@Override
-	public void enterVariableAssignment(VariableAssignmentContext ctx) {
-		var variableAssignment = new VariableAssignment();
-		currentContainer.push(variableAssignment);
+	public void enterVarAssignment(VarAssignmentContext ctx) {
+		var varAssign = new VariableAssignment();
+		varAssign.setLine(ctx.start.getLine());
+		currentContainer.push(varAssign);
 	}
 
 	@Override
-	public void exitVariableAssignment(VariableAssignmentContext ctx) {
-		var variableAssignment = currentContainer.pop();
-		currentContainer.peek().addChild(variableAssignment);
+	public void exitVarAssignment(VarAssignmentContext ctx) {
+		var varAssign = currentContainer.pop();
+		currentContainer.peek().addChild(varAssign);
 	}
 
 	@Override
 	public void enterDeclaration(DeclarationContext ctx) {
-		var declaration = new Declaration();
-		currentContainer.push(declaration);
+		var decl = new Declaration();
+		decl.setLine(ctx.start.getLine());
+		currentContainer.push(decl);
 	}
 
 	@Override
 	public void exitDeclaration(DeclarationContext ctx) {
-		var declaration = currentContainer.pop();
-		currentContainer.peek().addChild(declaration);
+		var decl = currentContainer.pop();
+		currentContainer.peek().addChild(decl);
 	}
 
 	@Override
 	public void enterPropertyName(PropertyNameContext ctx) {
-		var propertyName = new PropertyName(ctx.getText());
-		currentContainer.peek().addChild(propertyName);
+		var propName = new PropertyName(ctx.getText());
+		propName.setLine(ctx.start.getLine());
+		currentContainer.peek().addChild(propName);
 	}
 
 	@Override
-	public void enterBoolLiteral(BoolLiteralContext ctx) {
-		var boolLiteral = new BoolLiteral(ctx.getText());
-		currentContainer.peek().addChild(boolLiteral);
+	public void enterBoolLit(BoolLitContext ctx) {
+		var boolLit = new BoolLiteral(ctx.getText());
+		boolLit.setLine(ctx.start.getLine());
+		currentContainer.peek().addChild(boolLit);
 	}
 
 	@Override
-	public void enterColorLiteral(ColorLiteralContext ctx) {
-		var colorLiteral = new ColorLiteral(ctx.getText());
-		currentContainer.peek().addChild(colorLiteral);
+	public void enterColorLit(ColorLitContext ctx) {
+		var colorLit = new ColorLiteral(ctx.getText());
+		colorLit.setLine(ctx.start.getLine());
+		currentContainer.peek().addChild(colorLit);
 	}
 
 	@Override
-	public void enterPercentageLiteral(PercentageLiteralContext ctx) {
-		var percentageLiteral = new PercentageLiteral(ctx.getText());
-		currentContainer.peek().addChild(percentageLiteral);
+	public void enterPercentLit(PercentLitContext ctx) {
+		var percentageLit = new PercentageLiteral(ctx.getText());
+		percentageLit.setLine(ctx.start.getLine());
+		currentContainer.peek().addChild(percentageLit);
 	}
 
 	@Override
-	public void enterPixelLiteral(PixelLiteralContext ctx) {
-		var pixelLiteral = new PixelLiteral(ctx.getText());
-		currentContainer.peek().addChild(pixelLiteral);
+	public void enterPixelLit(PixelLitContext ctx) {
+		var pixelLit = new PixelLiteral(ctx.getText());
+		pixelLit.setLine(ctx.start.getLine());
+		currentContainer.peek().addChild(pixelLit);
 	}
 
 	@Override
-	public void enterScalarLiteral(ScalarLiteralContext ctx) {
-		var scalarLiteral = new ScalarLiteral(ctx.getText());
-		currentContainer.peek().addChild(scalarLiteral);
+	public void enterScalarLit(ScalarLitContext ctx) {
+		var scalarLit = new ScalarLiteral(ctx.getText());
+		scalarLit.setLine(ctx.start.getLine());
+		currentContainer.peek().addChild(scalarLit);
 	}
 
 	@Override
@@ -171,44 +185,48 @@ public class ASTListener extends ICSSBaseListener {
 				default:
 					operation = new SubtractOperation();
 			}
+
+			operation.setLine(ctx.start.getLine());
 			currentContainer.push(operation);
 		}
 	}
 
 	@Override
 	public void exitExpression(ExpressionContext ctx) {
-		if (expressionHasTerminalNode(ctx)) {
+		if (exprHasOperation(ctx)) {
 			var operation = currentContainer.pop();
 			currentContainer.peek().addChild(operation);
 		}
 	}
 
 	@Override
-	public void enterIfClause(IfClauseContext ctx) {
-		var ifClause = new IfClause();
-		currentContainer.push(ifClause);
+	public void enterIfStmt(IfStmtContext ctx) {
+		var ifStmt = new IfClause();
+		ifStmt.setLine(ctx.start.getLine());
+		currentContainer.push(ifStmt);
 	}
 
 	@Override
-	public void exitIfClause(IfClauseContext ctx) {
-		var ifClause = currentContainer.pop();
-		currentContainer.peek().addChild(ifClause);
+	public void exitIfStmt(IfStmtContext ctx) {
+		var ifStmt = currentContainer.pop();
+		currentContainer.peek().addChild(ifStmt);
 	}
 
 	@Override
-	public void enterElseClause(ElseClauseContext ctx) {
-		var elseClause = new ElseClause();
-		currentContainer.push(elseClause);
+	public void enterElseStmt(ElseStmtContext ctx) {
+		var elseStmt = new ElseClause();
+		elseStmt.setLine(ctx.start.getLine());
+		currentContainer.push(elseStmt);
 	}
 
 	@Override
-	public void exitElseClause(ElseClauseContext ctx) {
-		var elseClause = currentContainer.pop();
-		currentContainer.peek().addChild(elseClause);
+	public void exitElseStmt(ElseStmtContext ctx) {
+		var elseStmt = currentContainer.pop();
+		currentContainer.peek().addChild(elseStmt);
 	}
 
-	private boolean expressionHasTerminalNode(ExpressionContext ctx) {
-		return ctx.PLUS() != null || ctx.MIN() != null || ctx.MUL() != null || ctx.DIV() != null;
+	private boolean exprHasOperation(ExpressionContext ctx) {
+		return ctx.PLUS() != null || ctx.MIN() != null || ctx.MUL() != null;
 	}
 
 }

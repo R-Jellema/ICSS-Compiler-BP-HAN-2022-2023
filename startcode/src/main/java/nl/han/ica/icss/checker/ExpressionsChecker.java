@@ -8,27 +8,27 @@ import nl.han.ica.icss.ast.types.ExpressionType;
 
 public class ExpressionsChecker {
     private final OperationsChecker operationsChecker;
-    private final VariableChecker variableChecker;
+    private final VariableChecker varChecker;
 
-    public ExpressionsChecker(VariableChecker variableChecker) {
-        this.variableChecker = variableChecker;
+    public ExpressionsChecker(VariableChecker varChecker) {
+        this.varChecker = varChecker;
         this.operationsChecker = new OperationsChecker(this);
     }
 
-    public ExpressionType expressionCheck(ASTNode astNode) {
-        var expression = (Expression) astNode;
+    public ExpressionType checkExpr(ASTNode astNode) {
+        var expr = (Expression) astNode;
 
-        if (expression instanceof Operation) {
-            return this.operationsChecker.check((Operation) expression);
+        if (expr instanceof Operation) {
+            return this.operationsChecker.operationChecker((Operation) expr);
         }
 
-        return this.expressionTypeCheck(expression);
+        return this.checkExprType(expr);
     }
 
-    public ExpressionType expressionTypeCheck(Expression expression) {
-        switch (expression.getClass().getSimpleName()) {
+    public ExpressionType checkExprType(Expression expr) {
+        switch (expr.getClass().getSimpleName()) {
             case "VariableReference":
-                return this.variableChecker.variableReferenceChecker((VariableReference) expression);
+                return this.varChecker.checkVarRef((VariableReference) expr);
             case "PercentageLiteral":
                 return ExpressionType.PERCENTAGE;
             case "PixelLiteral":

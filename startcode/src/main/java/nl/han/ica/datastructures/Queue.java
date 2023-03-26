@@ -3,6 +3,7 @@ package nl.han.ica.datastructures;
 public class Queue<T> implements IHANQueue<T>{
 
     private final IHANLinkedList<T> list;
+    private final int INDEX_COUNT_ZERO = 0;
 
     public Queue() {
         list = new LinkedList<>();
@@ -15,12 +16,12 @@ public class Queue<T> implements IHANQueue<T>{
 
     @Override
     public boolean isEmpty() {
-        return list.getSize() == 0;
+        return list.getSize() == INDEX_COUNT_ZERO;
     }
 
     @Override
-    public void enqueue(T value) {
-        list.insert(list.getSize(), value); // 2 loops are being executed here.
+    public void enqueue(T val) {
+        list.insert(list.getSize(), val);
     }
 
     @Override

@@ -10,7 +10,7 @@ public class BoolLiteral extends Literal {
         this.value = value;
     }
     public BoolLiteral(String text) {
-        this.value = text.equals("TRUE");
+        this.value = text.equalsIgnoreCase("TRUE");
     }
     @Override
     public String getNodeLabel() {
