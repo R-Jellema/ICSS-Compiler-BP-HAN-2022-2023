@@ -1,6 +1,5 @@
 package nl.han.ica.icss.checker;
 
-import nl.han.ica.icss.ast.ASTNode;
 import nl.han.ica.icss.ast.Expression;
 import nl.han.ica.icss.ast.Operation;
 import nl.han.ica.icss.ast.VariableReference;

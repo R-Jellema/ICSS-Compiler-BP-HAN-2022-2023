@@ -21,7 +21,7 @@ public class Checker {
     }
 
     public void check(AST ast) {
-        stylesheetChecker((Stylesheet) ast.root);
+        stylesheetChecker(ast.root);
     }
 
     private void stylesheetChecker(Stylesheet sheet) {

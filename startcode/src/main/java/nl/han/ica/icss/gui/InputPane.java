@@ -4,7 +4,6 @@ package nl.han.ica.icss.gui;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.stream.Collectors;
 
 import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;

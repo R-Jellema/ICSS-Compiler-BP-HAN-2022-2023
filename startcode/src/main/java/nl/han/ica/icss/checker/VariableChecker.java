@@ -1,7 +1,6 @@
 package nl.han.ica.icss.checker;
 
 import nl.han.ica.datastructures.ScopeHolder;
-import nl.han.ica.icss.ast.ASTNode;
 import nl.han.ica.icss.ast.VariableAssignment;
 import nl.han.ica.icss.ast.VariableReference;
 import nl.han.ica.icss.ast.types.ExpressionType;
