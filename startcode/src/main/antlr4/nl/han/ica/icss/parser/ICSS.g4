@@ -40,8 +40,6 @@ WS: [ \t\r\n]+ -> skip;
 COMMENT_BLOCK : '/*' (COMMENT_BLOCK|.)*? '*/' -> skip;
 LINE_COMMENT  : '//' .*? '\n' -> skip;
 
-
-
 OPEN_BRACE: '{';
 CLOSE_BRACE: '}';
 SEMICOLON: ';';

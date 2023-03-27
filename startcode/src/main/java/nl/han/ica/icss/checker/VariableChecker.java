@@ -15,26 +15,25 @@ public class VariableChecker {
         this.expressionsChecker = new ExpressionsChecker(this);
     }
 
-    public void varAssignChecker(ASTNode astNode) {
-        var variableAssign = (VariableAssignment) astNode;
-        var varRef = variableAssign.name;
-        var exprType = this.expressionsChecker.checkExpr(variableAssign.expression);
+    public void varAssignChecker(VariableAssignment varAssign) {
+        var varRef = varAssign.name;
+        var exprType = this.expressionsChecker.checkExpr(varAssign.expression);
 
         if (exprType == null || exprType == ExpressionType.UNDEFINED) {
-            astNode.setError("Variable assignment is invalid and thus not possible because of an invalid expression at line: " + variableAssign.getLine(), ErrorType.ERROR);
+            varAssign.setError("Variable assignment is invalid and thus not possible because of an invalid expression at line: " + varAssign.getLine(), ErrorType.ERROR);
             return;
         }
 
-        ExpressionType prevExprType = this.variableTypes.getVariable(varRef.name);
+        ExpressionType prevExprType = this.variableTypes.getVariableValue(varRef.name);
         if (isVarTypeSameOnReAssignment(exprType, prevExprType)) {
-            astNode.setError("Variable of type \"" + prevExprType + "\" can't hold a value of type \"" + exprType + "\". At line: " + varRef.getLine(), ErrorType.ERROR);
+            varAssign.setError("Variable of type \"" + prevExprType + "\" can't hold a value of type \"" + exprType + "\". At line: " + varRef.getLine(), ErrorType.ERROR);
         }
 
         this.variableTypes.addVariable(varRef.name, exprType);
     }
 
     public ExpressionType checkVarRef(VariableReference varRef) {
-        var exprType = variableTypes.getVariable((varRef).name);
+        var exprType = variableTypes.getVariableValue((varRef).name);
         if (exprType == null) {
             varRef.setError("Variable usage invalid. Is the variable not declared or possible declared in an unavailable scope? At line: " + varRef.getLine(), ErrorType.WARN);
             return null;

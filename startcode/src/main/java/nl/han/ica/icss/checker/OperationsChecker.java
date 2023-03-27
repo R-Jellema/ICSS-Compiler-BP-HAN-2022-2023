@@ -1,5 +1,6 @@
 package nl.han.ica.icss.checker;
 
+import nl.han.ica.icss.ast.Expression;
 import nl.han.ica.icss.ast.Operation;
 import nl.han.ica.icss.ast.operations.AddOperation;
 import nl.han.ica.icss.ast.operations.MultiplicationOperation;
@@ -14,38 +15,48 @@ public class OperationsChecker {
     }
 
     public ExpressionType operationChecker(Operation operation) {
+        var leftExprType = getExpressionType(operation.lhs);
+        var rightExprType = getExpressionType(operation.rhs);
 
-        var leftExprType = ExpressionType.UNDEFINED;
-        var rightExprType = ExpressionType.UNDEFINED;
-
-        if (operation.lhs instanceof Operation) {
-            leftExprType = this.operationChecker((Operation) operation.lhs);
-        } else {
-            leftExprType = this.exprChecker.checkExprType(operation.lhs);
-        }
-
-        if (operation.rhs instanceof Operation) {
-            rightExprType = this.operationChecker((Operation) operation.rhs);
-        } else {
-            rightExprType = this.exprChecker.checkExprType(operation.rhs);
-        }
-
-        if (leftExprType == ExpressionType.COLOR || rightExprType == ExpressionType.COLOR || leftExprType == ExpressionType.BOOL || rightExprType == ExpressionType.BOOL) {
-            operation.setError("Using color literals or boolean literals in Mutliplication, Addition or Subtraction operations is not allowed. At line: " + operation.getLine(), ErrorType.ERROR);
+        if (containsInvalidTypes(leftExprType, rightExprType)) {
+            var message = "Using color literals or boolean literals in multiplication, addition, or subtraction operations is not allowed. At line: " + operation.getLine();
+            operation.setError(message, ErrorType.ERROR);
             return ExpressionType.UNDEFINED;
         }
 
         if (operation instanceof MultiplicationOperation) {
-            if (leftExprType != ExpressionType.SCALAR && rightExprType != ExpressionType.SCALAR) {
-                operation.setError("Multiplication is only possible if either left or right side op the expression conatins a scalar literal at line: " + operation.getLine(), ErrorType.ERROR);
+            if (!containsScalarLiteral(leftExprType, rightExprType)) {
+                var message = "Multiplication is only possible if either left or right side of the expression contains a scalar literal at line: " + operation.getLine();
+                operation.setError(message, ErrorType.ERROR);
                 return ExpressionType.UNDEFINED;
             }
             return rightExprType != ExpressionType.SCALAR ? rightExprType : leftExprType;
-        } else if ((operation instanceof SubtractOperation || operation instanceof AddOperation) && leftExprType != rightExprType) {
-            operation.setError("Subtraction or Addition operations are only allowed with the same types. At line: " + operation.getLine(), ErrorType.ERROR);
+        } else if (operationIsOfTypeSubtractionOrAddition(operation) && !hasSameTypes(leftExprType, rightExprType)) {
+            var message = "Subtraction or addition operations are only allowed with the same types. At line: " + operation.getLine();
+            operation.setError(message, ErrorType.ERROR);
             return ExpressionType.UNDEFINED;
         }
 
         return leftExprType;
+    }
+
+
+    private boolean operationIsOfTypeSubtractionOrAddition(Operation operation) {
+        return operation instanceof SubtractOperation || operation instanceof AddOperation;
+    }
+    private ExpressionType getExpressionType(Expression expr) {
+        return (expr instanceof Operation) ? operationChecker((Operation) expr) : exprChecker.checkExprType(expr);
+    }
+
+    private boolean containsInvalidTypes(ExpressionType left, ExpressionType right) {
+        return left == ExpressionType.COLOR || right == ExpressionType.COLOR || left == ExpressionType.BOOL || right == ExpressionType.BOOL;
+    }
+
+    private boolean containsScalarLiteral(ExpressionType left, ExpressionType right) {
+        return left == ExpressionType.SCALAR || right == ExpressionType.SCALAR;
+    }
+
+    private boolean hasSameTypes(ExpressionType left, ExpressionType right) {
+        return left == right;
     }
 }

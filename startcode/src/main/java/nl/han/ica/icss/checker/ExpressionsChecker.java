@@ -15,9 +15,7 @@ public class ExpressionsChecker {
         this.operationsChecker = new OperationsChecker(this);
     }
 
-    public ExpressionType checkExpr(ASTNode astNode) {
-        var expr = (Expression) astNode;
-
+    public ExpressionType checkExpr(Expression expr) {
         if (expr instanceof Operation) {
             return this.operationsChecker.operationChecker((Operation) expr);
         }

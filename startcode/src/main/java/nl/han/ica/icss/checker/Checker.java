@@ -14,27 +14,25 @@ public class Checker {
     private final VariableChecker varChecker;
 
     public Checker() {
-        this.scopes = new ScopeHolder<>();
-        this.varChecker = new VariableChecker(scopes);
-        this.exprChecker = new ExpressionsChecker(varChecker);
-        this.ifClauseExprChecker = new IfClauseExpressionsChecker(exprChecker);
+        scopes = new ScopeHolder<>();
+        varChecker = new VariableChecker(scopes);
+        exprChecker = new ExpressionsChecker(varChecker);
+        ifClauseExprChecker = new IfClauseExpressionsChecker(exprChecker);
     }
 
     public void check(AST ast) {
-        this.stylesheetChecker(ast.root);
+        stylesheetChecker((Stylesheet) ast.root);
     }
 
-    private void stylesheetChecker(ASTNode node) {
-        var sheet = (Stylesheet) node;
-
+    private void stylesheetChecker(Stylesheet sheet) {
         scopes.openScope();
 
         sheet.getChildren().forEach(child -> {
-            if (child instanceof VariableAssignment) {
-                varChecker.varAssignChecker(child);
-            } else if (child instanceof StyleRule) {
+            if (child instanceof VariableAssignment)
+                castToCorrectTypeAndCheck(child);
+            else if (child instanceof StyleRule) {
                 scopes.openScope();
-                    styleRuleChecker(child);
+                castToCorrectTypeAndCheck(child);
                 scopes.closeScope();
             }
         });
@@ -42,69 +40,64 @@ public class Checker {
         scopes.closeScope();
     }
 
-    private void styleRuleChecker(ASTNode node) {
-        var stylerule = (StyleRule) node;
-        this.ruleBodyChecker(stylerule.body);
-    }
-
     private void ruleBodyChecker(ArrayList<ASTNode> nodes) {
-        nodes.forEach(node -> {
-            if (node instanceof Declaration) {
-                this.declChecker(node);
-            } else if (node instanceof IfClause) {
-                this.ifClauseChecker(node);
-            } else if (node instanceof VariableAssignment) {
-                this.varChecker.varAssignChecker(node);
-            }
-        });
+        nodes.forEach(this::castToCorrectTypeAndCheck);
     }
 
-    private void ifClauseChecker(ASTNode astNode) {
-        var ifClause = (IfClause) astNode;
-        this.scopes.openScope();
-            this.ifClauseExprChecker.checkIfClauseExpr(ifClause);
-            this.ruleBodyChecker(ifClause.body);
-        this.scopes.closeScope();
+    private void castToCorrectTypeAndCheck(ASTNode node){
+        if (node instanceof IfClause)
+            ifClauseChecker((IfClause) node);
+        else if (node instanceof Declaration)
+            declChecker((Declaration) node);
+        else if (node instanceof VariableAssignment)
+            varChecker.varAssignChecker((VariableAssignment) node);
+        else if (node instanceof StyleRule)
+            ruleBodyChecker(((StyleRule) node).body);
+    }
+
+    private void ifClauseChecker(IfClause ifClause) {
+        scopes.openScope();
+            ifClauseExprChecker.checkIfClauseExpr(ifClause);
+            ruleBodyChecker(ifClause.body);
+        scopes.closeScope();
 
         if (ifClause.elseClause == null)  return;
 
-        this.scopes.openScope();
-        this.elseClauseChecker(ifClause.elseClause);
-        this.scopes.closeScope();
+        scopes.openScope();
+        elseClauseChecker(ifClause.elseClause);
+        scopes.closeScope();
     }
 
-    private void elseClauseChecker(ASTNode astNode) {
-        var elseClause = (ElseClause) astNode;
-        this.ruleBodyChecker(elseClause.body);
+    private void elseClauseChecker(ElseClause elseClause) {
+        ruleBodyChecker(elseClause.body);
     }
 
-    private void declChecker(ASTNode astNode) {
-        var decl = (Declaration) astNode;
-        var exprType = this.exprChecker.checkExpr(decl.expression);
+    private void declChecker(Declaration decl) {
+        var exprType = exprChecker.checkExpr(decl.expression);
 
         switch (decl.property.name) {
             case "color":
                 if (exprType != ExpressionType.COLOR) {
-                    astNode.setError("A color property-value can only hold color literal type. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
+                    decl.setError("A color property-value can only hold color literal type. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             case "background-color":
                 if (exprType != ExpressionType.COLOR) {
-                    astNode.setError("A background-color property-value can only hold color literal type. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
+                    decl.setError("A background-color property-value can only hold color literal type. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             case "width":
                 if (exprType != ExpressionType.PIXEL && exprType != ExpressionType.PERCENTAGE) {
-                    astNode.setError("A width property-value can only hold pixel literal or percentage literal types. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
+                    decl.setError("A width property-value can only hold pixel literal or percentage literal types. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             case "height":
                 if (exprType != ExpressionType.PIXEL && exprType != ExpressionType.PERCENTAGE) {
-                    astNode.setError("A height property-value can only hold a pixel literal or percentage literal type. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
+                    decl.setError("A height property-value can only hold a pixel literal or percentage literal type. At line: " + decl.getLine(), ErrorType.SYNTAX_ERROR);
                 }
                 break;
             default:
-                astNode.setError("The property \"" + decl.property.name + "\" cannot be resolved. At line: " + decl.getLine(), ErrorType.ERROR);
+                decl.setError("The property \"" + decl.property.name + "\" cannot be resolved. At line: " + decl.getLine(), ErrorType.ERROR);
                 break;
         }
     }

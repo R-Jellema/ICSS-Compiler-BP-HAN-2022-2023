@@ -23,7 +23,7 @@ public class ScopeHolder<K,V> {
         this.listOfScopes.getFirst().put(key, val);
     }
 
-    public V getVariable(K key) {
+    public V getVariableValue(K key) {
         AtomicReference<V> result = new AtomicReference<>();
         listOfScopes.forEach(scope -> {
             V val = scope.get(key);
